@@ -122,5 +122,35 @@ def safe_name(text: str) -> str:
     """
     return re.sub(r'[<>:"/\\|?*]', "_", str(text)).strip()
 
+
+def resolver_diretorio_export(diretorio_base: Path, setor: str) -> Path:
+    """
+    Resolve o diretório de destino de um arquivo exportado,
+    levando em conta as regras de agrupamento por pasta.
+
+    Se o setor pertencer a um grupo, retorna diretorio_base / nome_da_pasta.
+    Caso contrário, retorna o próprio diretorio_base (arquivo fica na raiz).
+
+    A subpasta é criada automaticamente caso não exista.
+
+    Args:
+        diretorio_base: Diretório raiz de exportação (DIRETORIO_EXPORT).
+        setor: Nome do setor vindo da planilha.
+
+    Returns:
+        Path do diretório onde o arquivo deve ser salvo.
+    """
+    from src.config.agrupamento import resolver_pasta
+
+    pasta = resolver_pasta(setor)
+
+    if pasta is None:
+        return diretorio_base
+
+    destino = diretorio_base / safe_name(pasta)
+    destino.mkdir(parents=True, exist_ok=True)
+    return destino
+
+
 if __name__ == "__main__":
     pass
