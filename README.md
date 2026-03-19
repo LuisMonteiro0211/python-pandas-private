@@ -9,7 +9,7 @@ Projeto em evolução para automatizar o processamento de planilhas Excel. Ele a
 - Estrutura organizada em MVC simples com `helpers`, `models` e `services`.
 - Planilha de teste incluída para facilitar o clone e testes rápidos.
 - Validação de pré-requisitos (variáveis de ambiente, caminhos e permissões) antes de iniciar o processamento.
-- Registro de logs em arquivo.
+- Registro de logs em arquivo e console.
 
 ## Pré-requisitos
 
@@ -56,17 +56,17 @@ Notas:
 python main.py
 ```
 
-O script lê a planilha configurada em `DIRETORIO_PLANILHA`, filtra por **Setor** e **Turno**, e exporta um arquivo Excel por combinação.
+O script lê a planilha configurada em `DIRETORIO_PLANILHA`, filtra por **SETOR** e **TURNO**, e exporta um arquivo Excel por combinação.
 
 ## Logs
 
-Os logs são gravados em `DIRETORIO_LOG/app.log`.
+Os logs são gravados em `DIRETORIO_LOG/app.log` e também exibidos no console.
 
 ## Requisitos da planilha de entrada
 
 A planilha deve conter, no mínimo, as colunas:
-- `Setor`
-- `Turno`
+- `SETOR`
+- `TURNO`
 
 Outras colunas são preservadas nos arquivos exportados.
 
@@ -79,21 +79,25 @@ python-pandas-analyzer/
 ├─ .env.example
 ├─ README.md
 ├─ requirements.txt
-└─ src/
-   ├─ main/
-   │  ├─ __init__.py
-   │  └─ start.py
-   ├─ helpers/
-   │  ├─ __init__.py
-   │  └─ helper.py
-   │  └─ log.py
-   ├─ models/
-   │  ├─ __init__.py
-   │  ├─ filtro.py
-   │  └─ export.py
-   └─ services/
-      ├─ __init__.py
-      └─ service.py
+├─ src/
+│  ├─ __init__.py
+│  ├─ main/
+│  │  ├─ __init__.py
+│  │  └─ start.py
+│  ├─ helpers/
+│  │  ├─ __init__.py
+│  │  ├─ helper.py
+│  │  └─ log.py
+│  ├─ models/
+│  │  ├─ __init__.py
+│  │  ├─ filtro.py
+│  │  └─ export.py
+│  └─ services/
+│     ├─ __init__.py
+│     └─ service.py
+└─ tests/
+   ├─ test_helper.py
+   └─ test_start.py
 ```
 
 ## Saída gerada
@@ -104,17 +108,25 @@ Os arquivos são salvos em `DIRETORIO_EXPORT` com o padrão:
 Relatorio_{Setor}_{Turno}_{DD_MM_YYYY}.xlsx
 ```
 
+## Testes
+
+Execute os testes com:
+
+```bash
+pytest
+```
+
 ## Problemas comuns
 
 - `Variáveis de ambiente não encontradas: ...`: falta configurar alguma variável no `.env`.
 - `Caminho informado ... não é um arquivo válido`: `DIRETORIO_PLANILHA` aponta para um caminho inválido.
 - `Caminho informado ... não é um diretório válido`: `DIRETORIO_EXPORT`/`DIRETORIO_LOG` apontam para um caminho inválido.
 - `Permissão negada para acessar o diretório ...`: pasta existe, mas sem permissão de escrita.
-- `Coluna 'Setor' não encontrada...` / `Coluna 'Turno' não encontrada...`: a planilha não possui as colunas obrigatórias.
+- `Coluna 'SETOR' não encontrada...` / `Coluna 'TURNO' não encontrada...`: a planilha não possui as colunas obrigatórias.
 
 ## Próximos Passos / Evolução
 
-- **Tela/Interface (futuro)**: adicionar uma interface para o usuário selecionar a planilha e o diretório de exportação via “gerenciador de arquivos” (file picker).
+- **Tela/Interface (futuro)**: adicionar uma interface para o usuário selecionar a planilha e o diretório de exportação via "gerenciador de arquivos" (file picker).
 - **Remover dependência de `.env` (futuro)**: substituir variáveis de ambiente por entradas do usuário na interface (caminhos/arquivos), mantendo as validações de pré-requisitos.
 
 ## Contribuição

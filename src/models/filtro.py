@@ -1,16 +1,19 @@
 from dataclasses import dataclass
+
 import pandas as pd
-from typing import Optional
+
+
 @dataclass
 class Filtro:
     """
-    Classe para representar um filtro
+    Representa um filtro a ser aplicado em um DataFrame.
+
     Args:
-        coluna: Coluna a ser filtrada
-        dataframe: DataFrame a ser filtrado
-        valor: Valor a ser filtrado
+        coluna: Nome da coluna a ser filtrada.
+        dataframe: DataFrame sobre o qual o filtro será aplicado.
+        valor: Valor esperado na coluna para manter a linha.
     """
-    
+
     coluna: str
     dataframe: pd.DataFrame
-    valor: str    
+    valor: str

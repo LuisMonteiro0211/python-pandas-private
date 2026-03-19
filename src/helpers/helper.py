@@ -1,126 +1,117 @@
-import pandas as pd
-from typing import List
-from src.models.filtro import Filtro
-from src.models.export import Export
-from pathlib import Path
 import re
 from os import getenv
+from pathlib import Path
+from typing import List
 
-def get_dataframe(path: str) -> pd.DataFrame:
+import pandas as pd
+
+from src.models.export import Export
+from src.models.filtro import Filtro
+
+
+def get_dataframe(path: Path) -> pd.DataFrame:
     """
-    Função para obter o dataframe a partir do caminho da planilha
+    Lê um arquivo Excel e retorna o DataFrame correspondente.
 
     Args:
-        path: Caminho da planilha
+        path: Caminho do arquivo Excel.
+
     Returns:
-        pd.DataFrame: DataFrame com os dados da planilha
+        DataFrame com os dados da planilha.
+
+    Raises:
+        FileNotFoundError: Se o arquivo não existir.
+        ValueError: Se houver erro na leitura do arquivo.
     """
     if not Path(path).is_file():
         raise FileNotFoundError(f"Arquivo {path} não encontrado")
-    
+
     try:
-        df = pd.read_excel(path)
-        return df
+        return pd.read_excel(path)
     except Exception as e:
-        raise ValueError(f"Erro ao ler o arquivo {path}: {e}")
+        raise ValueError(f"Erro ao ler o arquivo {path}: {e}") from e
 
-def get_colunas(dataframe: pd.DataFrame) -> List[str]:
-    """
-    Função para obter as colunas do dataframe
-
-    Args:
-        dataframe: DataFrame com os dados
-    Returns:
-        List[str]: Lista com as colunas do dataframe
-    """
-    colunas: List[str] = dataframe.columns.tolist()
-    return colunas
 
 def check_colunas(colunas: List[str], coluna: str) -> None:
     """
-    Função para verificar se a coluna existe no dataframe
+    Verifica se uma coluna existe na lista de colunas.
 
     Args:
-        colunas: Lista com as colunas do dataframe
-        coluna: Coluna a ser verificada
-    Returns:
-        None (Se a coluna não existir, uma exceção é lançada)
+        colunas: Lista de colunas disponíveis.
+        coluna: Coluna esperada.
+
+    Raises:
+        ValueError: Se a coluna não for encontrada.
     """
     if coluna not in colunas:
         raise ValueError(f"Coluna '{coluna}' não encontrada no dataframe")
 
-def get_setores(dataframe: pd.DataFrame) -> List[str]:
-    """
-    Função para obter os setores do dataframe
-    
-    Args:
-        dataframe: DataFrame com os dados
-    Returns:
-        List[str]: Lista com os setores do dataframe
-    """
-    setores: List[str] = dataframe['SETOR'].unique().tolist()
-    return setores
 
-def get_turnos(dataframe: pd.DataFrame) -> List[str]:
+def get_unique_values(dataframe: pd.DataFrame, coluna: str) -> List[str]:
     """
-    Função para obter os turnos do dataframe
+    Retorna os valores únicos de uma coluna do DataFrame.
+
     Args:
-        dataframe: DataFrame com os dados
+        dataframe: DataFrame de origem.
+        coluna: Nome da coluna.
+
     Returns:
-        List[str]: Lista com os turnos do dataframe
+        Lista de valores únicos.
     """
-    turnos: List[str] = dataframe['TURNO'].unique().tolist()
-    return turnos
+    return dataframe[coluna].unique().tolist()
+
 
 def applying_filters(filtro: Filtro) -> pd.DataFrame:
     """
-    Função para aplicar os filtros ao dataframe
+    Aplica um filtro ao DataFrame, retornando apenas as linhas
+    onde ``filtro.coluna == filtro.valor``.
 
     Args:
-        filtro: Filtro a ser aplicado (Objeto Filtro - coluna, dataframe, valor)
+        filtro: Objeto Filtro com coluna, dataframe e valor.
+
     Returns:
-        pd.DataFrame: DataFrame com os dados filtrados
+        DataFrame filtrado.
     """
     return filtro.dataframe[filtro.dataframe[filtro.coluna] == filtro.valor]
 
-def export_to_excel(object_to_export: Export) -> None:
+
+def export_to_excel(export: Export) -> None:
     """
-    Função para exportar o dataframe para um arquivo Excel
+    Exporta um DataFrame para um arquivo Excel.
+
     Args:
-        object_to_export: Objeto Export com o dataframe, diretório, nome do arquivo e nome da pasta
-    Returns:
-        None
+        export: Objeto Export com dataframe, diretório, nome do arquivo e nome da aba.
     """
+    caminho = export.diretorio / export.nome_arquivo
+    export.dataframe.to_excel(caminho, index=False, sheet_name=export.nome_aba)
 
-    diretorio: Path = object_to_export.diretorio
-    object_to_export.dataframe.to_excel(diretorio / object_to_export.nome_arquivo, index=False, sheet_name=object_to_export.nome_pasta)
 
-def check_environment_variables(list_of_variables: List[str]) -> None:
+def check_environment_variables(variables: List[str]) -> None:
     """
-    Função para verificar se a variável de ambiente existe
+    Verifica se todas as variáveis de ambiente da lista estão definidas.
+
     Args:
-        environment_variable: Variável de ambiente a ser verificada
-    Returns:
-        None (Se a variável de ambiente não existir, uma exceção é lançada)
+        variables: Lista de nomes de variáveis de ambiente esperadas.
+
+    Raises:
+        ValueError: Se uma ou mais variáveis não estiverem definidas.
     """
-    list_of_variables_found = []
+    missing = [var for var in variables if not getenv(var)]
 
-    for variable in list_of_variables:
-        if not getenv(variable):
-            list_of_variables_found.append(variable)
+    if missing:
+        raise ValueError(
+            f"Variáveis de ambiente não encontradas: {', '.join(missing)}"
+        )
 
-    if len(list_of_variables_found) > 0:
-        raise ValueError(f"Variáveis de ambiente não encontradas: {', '.join(list_of_variables_found)}")
 
 def safe_name(text: str) -> str:
     """
-    Função para sanitizar o nome de um arquivo
+    Sanitiza um texto para ser usado como nome de arquivo.
+
     Args:
-        text: Texto a ser sanitizado
+        text: Texto a ser sanitizado.
+
     Returns:
-        str: Texto sanitizado
+        Texto com caracteres inválidos substituídos por ``_``.
     """
     return re.sub(r'[<>:"/\\|?*]', "_", str(text)).strip()
-
-if __name__ == "__main__":
-    pass

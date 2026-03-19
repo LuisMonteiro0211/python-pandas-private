@@ -1,3 +1,4 @@
 from src.main.start import start
 
-start()
+if __name__ == "__main__":
+    start()
