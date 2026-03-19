@@ -79,21 +79,27 @@ python-pandas-analyzer/
 ├─ .env.example
 ├─ README.md
 ├─ requirements.txt
-└─ src/
-   ├─ main/
-   │  ├─ __init__.py
-   │  └─ start.py
-   ├─ helpers/
-   │  ├─ __init__.py
-   │  └─ helper.py
-   │  └─ log.py
-   ├─ models/
-   │  ├─ __init__.py
-   │  ├─ filtro.py
-   │  └─ export.py
-   └─ services/
-      ├─ __init__.py
-      └─ service.py
+├─ src/
+│  ├─ config/
+│  │  ├─ __init__.py
+│  │  └─ agrupamento.py      ← regras de agrupamento por pasta
+│  ├─ main/
+│  │  ├─ __init__.py
+│  │  └─ start.py
+│  ├─ helpers/
+│  │  ├─ __init__.py
+│  │  ├─ helper.py
+│  │  └─ log.py
+│  ├─ models/
+│  │  ├─ __init__.py
+│  │  ├─ filtro.py
+│  │  └─ export.py
+│  └─ services/
+│     ├─ __init__.py
+│     └─ service.py
+└─ tests/
+   ├─ test_helper.py
+   └─ test_agrupamento.py
 ```
 
 ## Saída gerada
@@ -101,8 +107,42 @@ python-pandas-analyzer/
 Os arquivos são salvos em `DIRETORIO_EXPORT` com o padrão:
 
 ```
-Relatorio_{Setor}_{Turno}_{DD_MM_YYYY}.xlsx
+{Setor}_{i}_{DD_MM}.xlsx
 ```
+
+### Agrupamento por pasta
+
+Alguns setores são agrupados automaticamente em subpastas dentro de `DIRETORIO_EXPORT`, de acordo com as regras definidas em `src/config/agrupamento.py`:
+
+| Pasta | Setores |
+|---|---|
+| `Logistica/` | Expedicao, Empilhadeira, Abastecimento |
+| `Operacoes/` | Sala de controle esterilizacao, Sala de controle pasteurizacao, Adicao de ingredientes, Caldeira, Plataforma de recepcao de leite, Presa, Servicos gerais, Vestiario |
+| `Logistica_2/` | Empilhadeira 2, Expedicao 2 |
+
+Setores que **não estão** em nenhum grupo ficam soltos na raiz de `DIRETORIO_EXPORT`.
+
+**Exemplo de estrutura de saída:**
+
+```text
+DIRETORIO_EXPORT/
+├── Logistica/
+│   ├── Expedicao_1_19_03.xlsx
+│   ├── Empilhadeira_1_19_03.xlsx
+│   └── Abastecimento_1_19_03.xlsx
+├── Operacoes/
+│   ├── Caldeira_1_19_03.xlsx
+│   ├── Vestiario_1_19_03.xlsx
+│   └── ...
+├── Logistica_2/
+│   ├── Empilhadeira_2_1_19_03.xlsx
+│   └── Expedicao_2_1_19_03.xlsx
+└── OutroSetor_1_19_03.xlsx          ← setor não agrupado (raiz)
+```
+
+A comparação de nomes é **case-insensitive** (ignora maiúsculas/minúsculas) e tolerante a espaços extras.
+
+Para alterar os grupos, edite o dicionário `GRUPOS` em `src/config/agrupamento.py`.
 
 ## Problemas comuns
 
