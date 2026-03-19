@@ -1,18 +1,30 @@
 import logging as lg
-from os import getenv
 from pathlib import Path
 
-def setup_logging():
+
+def setup_logging(log_dir: Path) -> None:
     """
-    Configura o logging para o arquivo de log
+    Configura o logging para arquivo e console.
+
+    Args:
+        log_dir: Diretório onde o arquivo de log será gravado.
     """
-    DIRETORIO_LOG = Path(getenv('DIRETORIO_LOG'))
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    file_handler = lg.FileHandler(
+        filename=log_dir / "app.log",
+        mode="a",
+        encoding="utf-8",
+    )
+    file_handler.setLevel(lg.INFO)
+    file_handler.setFormatter(lg.Formatter(log_format, datefmt=date_format))
+
+    console_handler = lg.StreamHandler()
+    console_handler.setLevel(lg.INFO)
+    console_handler.setFormatter(lg.Formatter(log_format, datefmt=date_format))
+
     lg.basicConfig(
         level=lg.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        filename=DIRETORIO_LOG / 'app.log',
-        filemode='a',
-        encoding='utf-8',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        handlers=[file_handler, console_handler],
     )
-    
