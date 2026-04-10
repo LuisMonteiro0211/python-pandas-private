@@ -13,10 +13,8 @@ class Export:
         dataframe: DataFrame a ser exportado.
         diretorio: Diretório de destino do arquivo.
         nome_arquivo: Nome do arquivo Excel (ex: ``relatorio.xlsx``).
-        nome_aba: Nome da aba (sheet) dentro do arquivo Excel.
     """
 
     dataframe: pd.DataFrame
     diretorio: Path
     nome_arquivo: str
-    nome_aba: str

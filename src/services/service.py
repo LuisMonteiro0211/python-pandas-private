@@ -58,14 +58,12 @@ def process_spreadsheet(path: Path) -> None:
             )
 
             nome_arquivo = safe_name(f"Relatorio_{setor}_{turno}_{data_hoje}.xlsx")
-            nome_aba = safe_name(setor)
 
             export_to_excel(
                 Export(
                     dataframe=df_turno,
                     diretorio=Path(getenv("DIRETORIO_EXPORT")),
                     nome_arquivo=nome_arquivo,
-                    nome_aba=nome_aba,
                 )
             )
             logger.info(
