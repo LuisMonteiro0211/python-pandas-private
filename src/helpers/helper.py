@@ -49,7 +49,7 @@ def check_colunas(colunas: List[str], coluna: str) -> None:
 
 def get_unique_values(dataframe: pd.DataFrame, coluna: str) -> List[str]:
     """
-    Retorna os valores únicos de uma coluna do DataFrame.
+    Retorna uma lista com os valores únicos de uma coluna do DataFrame.
 
     Args:
         dataframe: DataFrame de origem.
@@ -64,7 +64,7 @@ def get_unique_values(dataframe: pd.DataFrame, coluna: str) -> List[str]:
 def applying_filters(filtro: Filtro) -> pd.DataFrame:
     """
     Aplica um filtro ao DataFrame, retornando apenas as linhas
-    onde ``filtro.coluna == filtro.valor``.
+    onde ``filtro.coluna == filtro.valor`` for True.
 
     Args:
         filtro: Objeto Filtro com coluna, dataframe e valor.
@@ -82,8 +82,8 @@ def export_to_excel(export: Export) -> None:
     Args:
         export: Objeto Export com dataframe, diretório, nome do arquivo e nome da aba.
     """
-    caminho = export.diretorio / export.nome_arquivo
-    export.dataframe.to_excel(caminho, index=False, sheet_name=export.nome_aba)
+    caminho = export.diretorio / export.nome_arquivo #Barra junta o diretorio e o nome do arquivo
+    export.dataframe.to_excel(caminho, index=False) #index=False para não incluir o índice no arquivo
 
 
 def check_environment_variables(variables: List[str]) -> None:
@@ -96,12 +96,13 @@ def check_environment_variables(variables: List[str]) -> None:
     Raises:
         ValueError: Se uma ou mais variáveis não estiverem definidas.
     """
-    missing = [var for var in variables if not getenv(var)]
+    missing = []
+    for var in variables:
+        if not getenv(var):
+            missing.append(var)
 
     if missing:
-        raise ValueError(
-            f"Variáveis de ambiente não encontradas: {', '.join(missing)}"
-        )
+        raise ValueError(f"Variáveis de ambiente não encontradas: {', '.join(missing)}")
 
 
 def safe_name(text: str) -> str:
@@ -115,3 +116,63 @@ def safe_name(text: str) -> str:
         Texto com caracteres inválidos substituídos por ``_``.
     """
     return re.sub(r'[<>:"/\\|?*]', "_", str(text)).strip()
+
+def safe_name_to_column(list_column: List[str]) -> List[str]:
+    """
+    Sanitiza uma lista de nomes de colunas para facilitar seu uso no DataFrame.
+    Transforma as colunas para maiúsculas e substitui espaços por underscores.
+
+    Args:
+        list_column: Lista de nomes de colunas a serem sanitizadas.
+
+    Returns:
+        Lista de nomes de colunas sanitizadas.
+
+    Raises:
+        ValueError: Se ocorrer um erro durante a sanitização dos nomes.
+    """
+    try:
+        list_to_safe_name: List[str] = [column.upper().replace(" ", "_") for column in list_column]
+        return list_to_safe_name
+    except Exception as e:
+        raise ValueError(f"Erro ao sanitizar o nome da coluna: {e}") from e
+
+def is_nan_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
+    """
+    Verifica se alguma das colunas especificadas possui valores NaN no DataFrame.
+
+    Args:
+        list_column: Lista de nomes de colunas a serem verificadas.
+        dataframe: DataFrame no qual as colunas serão analisadas.
+
+    Raises:
+        ValueError: Se alguma coluna contiver valores NaN.
+    """
+    for column in list_column:
+        if dataframe[column].isna().any():
+            raise ValueError(f"Coluna {column} contém valores NaN")
+
+def strip_space_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
+    """
+    Remove espaços em branco no início e no fim dos valores de cada coluna especificada do DataFrame.
+
+    Args:
+        list_column: Lista de nomes de colunas cujos valores serão ajustados.
+        dataframe: DataFrame onde as operações serão aplicadas.
+    """
+    for column in list_column:
+        safe_name = dataframe[column].str.strip()
+        dataframe[column] = safe_name
+
+def datafrme_is_empty(dataframe: pd.DataFrame) -> None:
+    """
+    Verifica se o DataFrame está vazio.
+
+    Args:
+        dataframe: DataFrame a ser verificado.
+
+    Raises:
+        ValueError: Se o DataFrame estiver vazio.
+    """
+    if dataframe.empty:
+        raise ValueError("DataFrame está vazio")
