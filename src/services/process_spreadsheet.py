@@ -2,7 +2,7 @@ import logging as lg
 from datetime import datetime
 from os import getenv
 from pathlib import Path
-
+from src.constants import REQUIRED_COLUMNS
 from src.helpers.helper import (
     applying_filters,
     check_colunas,
@@ -13,9 +13,6 @@ from src.helpers.helper import (
 )
 from src.models.export import Export
 from src.models.filtro import Filtro
-
-REQUIRED_COLUMNS = ["SETOR", "TURNO"]
-
 
 def process_spreadsheet(path: Path) -> None:
     """
