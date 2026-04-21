@@ -1,20 +1,18 @@
 import logging as lg
 from datetime import datetime
-from os import getenv
 from pathlib import Path
 from src.constants import REQUIRED_COLUMNS
 from src.helpers.helper import (
     applying_filters,
-    check_colunas,
     export_to_excel,
-    get_dataframe,
     get_unique_values,
     safe_name,
 )
 from src.models.export import Export
 from src.models.filtro import Filtro
+import pandas as pd
 
-def process_spreadsheet(path: Path) -> None:
+def process_spreadsheet(safe_dataframe: pd.DataFrame, diretorio_export: Path) -> None:
     """
     Processa a planilha aplicando filtros por setor e turno,
     exportando um arquivo Excel por combinação.
@@ -25,41 +23,26 @@ def process_spreadsheet(path: Path) -> None:
     logger = lg.getLogger(__name__)
     data_hoje = datetime.now().strftime("%d_%m_%Y")
 
-    try:
-        df = get_dataframe(path)
-    except (ValueError, FileNotFoundError) as e:
-        logger.error(e)
-        return
-
-    colunas = df.columns.tolist()
-    try:
-        for coluna in REQUIRED_COLUMNS:
-            check_colunas(colunas, coluna)
-            logger.info("Coluna '%s' encontrada", coluna)
-    except ValueError as e:
-        logger.error(e)
-        return
-
-    setores = get_unique_values(df, "SETOR")
+    setores = get_unique_values(safe_dataframe, REQUIRED_COLUMNS[0])
     logger.info("Setores encontrados: %s", setores)
 
     for setor in setores:
-        df_setor = applying_filters(Filtro(coluna="SETOR", dataframe=df, valor=setor))
+        filtered_to_setor = Filtro(coluna="SETOR", dataframe=safe_dataframe, valor=setor) #Monta o filtro para o setor selecionado
+        df_filtered_to_setor = applying_filters(filtered_to_setor) #Cria um novo DataFrame com os dados filtrados para o setor selecionado
 
-        turnos = get_unique_values(df_setor, "TURNO")
+        turnos = get_unique_values(df_filtered_to_setor, "TURNO") #Filtra os turnos para o setor selecionado
         logger.info("Turnos para setor '%s': %s", setor, turnos)
 
         for turno in turnos:
-            df_turno = applying_filters(
-                Filtro(coluna="TURNO", dataframe=df_setor, valor=turno)
-            )
+            filtered_to_turno = Filtro(coluna="TURNO", dataframe=df_filtered_to_setor, valor=turno)
+            df_filtered_to_turno = applying_filters(filtered_to_turno) #Cria um novo DataFrame com os dados filtrados para o turno selecionado
 
             nome_arquivo = safe_name(f"Relatorio_{setor}_{turno}_{data_hoje}.xlsx")
 
             export_to_excel(
                 Export(
-                    dataframe=df_turno,
-                    diretorio=Path(getenv("DIRETORIO_EXPORT")),
+                    dataframe=df_filtered_to_turno,
+                    diretorio=diretorio_export,
                     nome_arquivo=nome_arquivo,
                 )
             )
@@ -67,5 +50,5 @@ def process_spreadsheet(path: Path) -> None:
                 "Exportado: Setor=%s, Turno=%s, Registros=%d",
                 setor,
                 turno,
-                df_turno.shape[0],
+                df_filtered_to_turno.shape[0],
             )
