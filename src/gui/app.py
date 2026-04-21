@@ -55,7 +55,7 @@ class App(ctk.CTk):
         #Cria botão de caminho de salvar
         self.btn_caminho_salvar = ctk.CTkButton(
             self.frame_botoes, 
-            text="Caminho de Salvar",
+            text="Exportar para",
             fg_color="#383836",
             hover_color="#2e2e2d",
             text_color="#fff",

@@ -32,19 +32,20 @@ def get_dataframe(path: Path) -> pd.DataFrame:
         raise ValueError(f"Erro ao ler o arquivo {path}: {e}") from e
 
 
-def check_colunas(colunas: List[str], coluna: str) -> None:
+def check_colunas(list_to_check: List[str], list_to_columns_check: List[str]) -> None:
     """
-    Verifica se uma coluna existe na lista de colunas.
+    Verifica se todas as colunas da lista de colunas esperadas existem na lista de colunas disponíveis.
 
     Args:
-        colunas: Lista de colunas disponíveis.
-        coluna: Coluna esperada.
+        list_to_check: Lista de colunas disponíveis.
+        list_to_columns_check: Lista de colunas esperadas.
 
     Raises:
         ValueError: Se a coluna não for encontrada.
     """
-    if coluna not in colunas:
-        raise ValueError(f"Coluna '{coluna}' não encontrada no dataframe")
+    for column in list_to_columns_check:
+        if column not in list_to_check:
+            raise ValueError(f"Coluna '{column}' não encontrada no dataframe")
 
 
 def get_unique_values(dataframe: pd.DataFrame, coluna: str) -> List[str]:
@@ -152,19 +153,27 @@ def is_nan_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
         if dataframe[column].isna().any():
             raise ValueError(f"Coluna {column} contém valores NaN")
 
-def strip_space_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
+def strip_space_in_column(list_column: List[str], dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Remove espaços em branco no início e no fim dos valores de cada coluna especificada do DataFrame.
+    Remove espaços em branco no início e no fim dos valores de cada coluna especificada retornando um dataframe com os valores ajustados.
 
     Args:
         list_column: Lista de nomes de colunas cujos valores serão ajustados.
         dataframe: DataFrame onde as operações serão aplicadas.
+    
+    Returns:
+        DataFrame com os valores das colunas ajustados.
     """
-    for column in list_column:
-        safe_name = dataframe[column].str.strip()
-        dataframe[column] = safe_name
+    iteracoes = len(list_column)
 
-def datafrme_is_empty(dataframe: pd.DataFrame) -> None:
+    for i in range(iteracoes):
+        safe_column = dataframe[list_column[i]].str.strip()
+        dataframe[list_column[i]] = safe_column
+
+    return dataframe
+
+
+def dataframe_is_empty(dataframe: pd.DataFrame) -> None:
     """
     Verifica se o DataFrame está vazio.
 
