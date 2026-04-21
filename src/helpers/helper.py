@@ -72,6 +72,17 @@ def applying_filters(filtro: Filtro) -> pd.DataFrame:
 
     Returns:
         DataFrame filtrado.
+
+    Exemplo:
+    >>> filtered_to_setor = Filtro(coluna="SETOR", dataframe=safe_dataframe, valor="Setor 1")
+    >>> df_filtered_to_setor = applying_filters(filtered_to_setor)
+    >>> print(df_filtered_to_setor)
+
+    LINHAS    SETOR    TURNO    NOME  IDADE SEXO
+
+    0        Setor 1  Turno 1  João   25     M
+    
+    1        Setor 1  Turno 2  Maria  30     F
     """
     return filtro.dataframe[filtro.dataframe[filtro.coluna] == filtro.valor]
 
