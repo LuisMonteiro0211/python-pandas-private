@@ -1,27 +1,48 @@
 # python-pandas-analyzer
 
-Projeto em evolução para automatizar o processamento de planilhas Excel. Ele aplica filtros e gera arquivos menores com os dados filtrados (ex.: separados por setor e turno).
+Projeto em evolução para analisar planilhas Excel com `pandas`, validar a estrutura mínima esperada e preparar a geração de relatórios filtrados por setor e turno.
 
-## Funcionalidades
+## Estado atual
 
-- Filtragem automática de dados em planilhas Excel.
-- Geração de arquivos menores com base em critérios (setor, turno, etc.).
-- Estrutura organizada em MVC simples com `helpers`, `models` e `services`.
-- Planilha de teste incluída para facilitar o clone e testes rápidos.
-- Validação de pré-requisitos (variáveis de ambiente, caminhos e permissões) antes de iniciar o processamento.
-- Registro de logs em arquivo e console.
+O projeto está em transição de um fluxo mais direto em script para uma interface gráfica com `customtkinter`.
 
-## Pré-requisitos
+Hoje a aplicação já permite:
 
-- Python 3.x
-- Dependências listadas em `requirements.txt`
+- selecionar um arquivo Excel (`.xlsx` ou `.xls`) pela interface;
+- carregar o arquivo com `pandas`;
+- sanitizar o `DataFrame` verificando estrutura mínima e dados inválidos;
+- exibir uma pré-visualização em tabela (`Treeview`);
+- selecionar um diretório de exportação pela interface.
+
+No momento, a parte de pré-visualização e sanitização já está integrada à GUI. O fluxo completo de geração dos relatórios pela interface ainda está em refinamento.
+
+## Funcionalidades implementadas
+
+- Leitura de planilhas Excel com `pandas`.
+- Validação das colunas obrigatórias `SETOR` e `TURNO`.
+- Normalização dos nomes das colunas.
+- Remoção de espaços em branco nas colunas obrigatórias.
+- Validação de `DataFrame` vazio e de valores `NaN`.
+- Processamento preparado para exportar relatórios separados por setor e turno.
+- Interface gráfica inicial para seleção de arquivo, preview e escolha do diretório de exportação.
+- Separação inicial de responsabilidades entre `gui`, `controller`, `services`, `helpers` e `models`.
+
+## Requisitos da planilha
+
+A planilha de entrada deve conter, no mínimo, as colunas:
+
+- `SETOR`
+- `TURNO`
+
+As demais colunas são preservadas no `DataFrame` e podem aparecer tanto na pré-visualização quanto nos arquivos exportados.
 
 ## Instalação
 
 1. Clone o repositório:
 
 ```bash
-git clone <https://github.com/LuisMonteiro0211/python-pandas-analyzer>
+git clone https://github.com/LuisMonteiro0211/python-pandas-analyzer
+cd python-pandas-analyzer
 ```
 
 2. Instale as dependências:
@@ -30,87 +51,75 @@ git clone <https://github.com/LuisMonteiro0211/python-pandas-analyzer>
 pip install -r requirements.txt
 ```
 
-## Configuração do ambiente (.env)
+## Como executar
 
-1. Copie o arquivo de exemplo:
-
-```bash
-cp .env.example .env
-```
-
-2. Edite o `.env` com os caminhos da planilha, da pasta de exportação e da pasta de logs:
-
-```env
-DIRETORIO_PLANILHA=./dados_ficticios_2025.xlsx
-DIRETORIO_EXPORT=./exports
-DIRETORIO_LOG=./logs
-```
-
-Notas:
-- Você pode usar caminhos absolutos ou relativos.
-- Garanta que as pastas de exportação e de logs existam antes de executar (e que você tenha permissão de escrita).
-
-## Como usar
+Atualmente o ponto de entrada da interface é:
 
 ```bash
-python main.py
+python run_gui.py
 ```
 
-O script lê a planilha configurada em `DIRETORIO_PLANILHA`, filtra por **SETOR** e **TURNO**, e exporta um arquivo Excel por combinação.
+Ao abrir a aplicação:
 
-## Logs
+1. clique em `Carregar Arquivo`;
+2. selecione a planilha Excel;
+3. a aplicação tenta ler e sanitizar o conteúdo;
+4. se o arquivo puder ser lido, o `DataFrame` pode ser exibido na tabela;
+5. erros de sanitização ficam disponíveis para a interface decidir se libera ou não as próximas etapas.
 
-Os logs são gravados em `DIRETORIO_LOG/app.log` e também exibidos no console.
+## Fluxo interno atual
 
-## Requisitos da planilha de entrada
+De forma simplificada, o fluxo está organizado assim:
 
-A planilha deve conter, no mínimo, as colunas:
-- `SETOR`
-- `TURNO`
+- `src/gui/app.py`: monta a interface e orquestra as ações do usuário;
+- `src/controller/sanitize_controller.py`: roda a leitura/sanitização em thread e expõe `result` e `error`;
+- `src/controller/process_controller.py`: prepara a execução do processamento final em thread;
+- `src/services/sanitize_dataframe.py`: concentra a validação e sanitização do `DataFrame`;
+- `src/services/process_spreadsheet.py`: aplica filtros e exporta relatórios por setor e turno;
+- `src/helpers/helper.py`: utilitários de leitura, filtros, exportação e apoio ao processamento.
 
-Outras colunas são preservadas nos arquivos exportados.
-
-## Estrutura do Projeto
+## Estrutura atual do projeto
 
 ```text
 python-pandas-analyzer/
-├─ main.py
-├─ dados_ficticios_2025.xlsx
-├─ .env.example
 ├─ README.md
 ├─ requirements.txt
+├─ run_gui.py
 ├─ src/
 │  ├─ __init__.py
-│  ├─ main/
+│  ├─ constants.py
+│  ├─ controller/
 │  │  ├─ __init__.py
-│  │  └─ start.py
+│  │  ├─ process_controller.py
+│  │  └─ sanitize_controller.py
+│  ├─ gui/
+│  │  ├─ __init__.py
+│  │  └─ app.py
 │  ├─ helpers/
-│  │  ├─ __init__.py
 │  │  ├─ helper.py
 │  │  └─ log.py
 │  ├─ models/
-│  │  ├─ __init__.py
-│  │  ├─ filtro.py
-│  │  └─ export.py
+│  │  ├─ export.py
+│  │  └─ filtro.py
 │  └─ services/
 │     ├─ __init__.py
-│     └─ service.py
-└─ tests/
-   ├─ test_helper.py
-   └─ test_start.py
+│     ├─ process_spreadsheet.py
+│     └─ sanitize_dataframe.py
 ```
 
-## Saída gerada
+## Saída esperada do processamento
 
-Os arquivos são salvos em `DIRETORIO_EXPORT` com o padrão:
+Quando o fluxo de exportação estiver acionado pela interface, os arquivos devem seguir o padrão:
 
-```
+```text
 Relatorio_{Setor}_{Turno}_{DD_MM_YYYY}.xlsx
 ```
 
 ## Testes
 
-Execute os testes com:
+Os testes automatizados ainda precisam ser atualizados para acompanhar a nova arquitetura baseada em GUI + controllers.
+
+Quando a suíte estiver consolidada, a execução continuará sendo feita com:
 
 ```bash
 pytest
@@ -118,17 +127,18 @@ pytest
 
 ## Problemas comuns
 
-- `Variáveis de ambiente não encontradas: ...`: falta configurar alguma variável no `.env`.
-- `Caminho informado ... não é um arquivo válido`: `DIRETORIO_PLANILHA` aponta para um caminho inválido.
-- `Caminho informado ... não é um diretório válido`: `DIRETORIO_EXPORT`/`DIRETORIO_LOG` apontam para um caminho inválido.
-- `Permissão negada para acessar o diretório ...`: pasta existe, mas sem permissão de escrita.
-- `Coluna 'SETOR' não encontrada...` / `Coluna 'TURNO' não encontrada...`: a planilha não possui as colunas obrigatórias.
+- `Arquivo ... não encontrado`: o caminho selecionado não existe ou não é um arquivo válido.
+- `Erro ao ler o arquivo ...`: houve falha na leitura do Excel com `pandas`.
+- `Erro ao sanitizar o DataFrame ...`: a planilha está vazia, sem colunas obrigatórias, com valores `NaN` ou com dados inválidos nas colunas críticas.
+- A tabela não mostra tudo de uma vez: a pré-visualização usa `Treeview` com barra de rolagem horizontal e vertical.
 
-## Próximos Passos / Evolução
+## Próximos passos
 
-- **Tela/Interface (futuro)**: adicionar uma interface para o usuário selecionar a planilha e o diretório de exportação via "gerenciador de arquivos" (file picker).
-- **Remover dependência de `.env` (futuro)**: substituir variáveis de ambiente por entradas do usuário na interface (caminhos/arquivos), mantendo as validações de pré-requisitos.
+- melhorar a divisão de responsabilidades entre GUI, controllers e services;
+- finalizar o fluxo de exportação acionado pela interface;
+- adicionar testes automatizados para controllers, services e fluxo principal da GUI;
+- incluir imagens da interface no README.
 
 ## Contribuição
 
-Contribuições são bem-vindas! Abra uma issue ou envie um pull request.
+Contribuições são bem-vindas. Abra uma issue ou envie um pull request.
