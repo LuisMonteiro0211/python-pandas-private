@@ -81,7 +81,7 @@ def applying_filters(filtro: Filtro) -> pd.DataFrame:
     LINHAS    SETOR    TURNO    NOME  IDADE SEXO
 
     0        Setor 1  Turno 1  João   25     M
-    
+
     1        Setor 1  Turno 2  Maria  30     F
     """
     return filtro.dataframe[filtro.dataframe[filtro.coluna] == filtro.valor]
