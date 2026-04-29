@@ -222,6 +222,7 @@ class App(ctk.CTk):
 
             if dataframe_sanitized.error is not None:
                 raise dataframe_sanitized.error
+            
             return dataframe_sanitized.result
         except Exception as e:
             raise e
