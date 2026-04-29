@@ -139,15 +139,9 @@ def safe_name_to_column(list_column: List[str]) -> List[str]:
 
     Returns:
         Lista de nomes de colunas sanitizadas.
-
-    Raises:
-        ValueError: Se ocorrer um erro durante a sanitização dos nomes.
     """
-    try:
-        list_to_safe_name: List[str] = [column.upper().replace(" ", "_") for column in list_column]
-        return list_to_safe_name
-    except Exception as e:
-        raise ValueError(f"Erro ao sanitizar o nome da coluna: {e}") from e
+    list_to_safe_name: List[str] = [column.upper().replace(" ", "_") for column in list_column]
+    return list_to_safe_name
 
 def is_nan_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
     """
@@ -166,20 +160,28 @@ def is_nan_in_column(list_column: List[str], dataframe: pd.DataFrame) -> None:
 
 def strip_space_in_column(list_column: List[str], dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Remove espaços em branco no início e no fim dos valores de cada coluna especificada retornando um dataframe com os valores ajustados.
+    Remove espaços em branco no início e no fim dos valores de cada coluna
+    especificada, retornando um DataFrame com os valores ajustados.
 
     Args:
         list_column: Lista de nomes de colunas cujos valores serão ajustados.
         dataframe: DataFrame onde as operações serão aplicadas.
-    
+
     Returns:
         DataFrame com os valores das colunas ajustados.
-    """
-    iteracoes = len(list_column)
 
-    for i in range(iteracoes):
-        safe_column = dataframe[list_column[i]].str.strip()
-        dataframe[list_column[i]] = safe_column
+    Raises:
+        TypeError: Se alguma das colunas informadas não for do tipo texto
+            (dtype diferente de 'object'), pois não é possível aplicar
+            ``str.strip()`` em colunas numéricas, datetime, etc.
+    """
+
+    for column in list_column:
+        if dataframe[column].dtype != 'object':
+            raise TypeError(f"Coluna {column} não é um texto")
+
+        safe_column = dataframe[column].str.strip()
+        dataframe[column] = safe_column
 
     return dataframe
 
