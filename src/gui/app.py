@@ -5,6 +5,7 @@ from tkinter import ttk, filedialog, messagebox
 import os
 from pathlib import Path
 import pandas as pd
+from src.gui.theme.theme import COLORS, FONTS
 
 class App(ctk.CTk):
     def __init__(self):
@@ -15,7 +16,7 @@ class App(ctk.CTk):
     def _configurar_tela(self):
         self.title("Python Pandas Analyzer")
         self.geometry("500x400")
-        self.configure(fg_color="#212121")
+        self.configure(fg_color=COLORS.app_background)
         self.resizable(False, False)
     
     def _configurar_widgets(self):
