@@ -1,11 +1,13 @@
 import customtkinter as ctk
 from src.controller.sanitize_controller import SanitizeController
 from src.controller.process_controller import ProcessController
-from tkinter import ttk, filedialog, messagebox
-import os
-from pathlib import Path
+from tkinter import ttk
 import pandas as pd
-from src.gui.theme.theme import COLORS, FONTS
+from src.gui.theme import COLORS, FONTS
+from src.gui.dialogs import (
+    ask_excel_file,
+    ask_save_directory,
+)
 
 class App(ctk.CTk):
     def __init__(self):
@@ -74,7 +76,7 @@ class App(ctk.CTk):
         self.btn_caminho_salvar.pack(side=ctk.LEFT, padx=(20, 0))
 
         self.btn_carregar_arquivo.configure(command=self._handle_file_uploaded)
-        self.btn_caminho_salvar.configure(command=self.ask_file_directory_to_save)
+        self.btn_caminho_salvar.configure(command=lambda: ask_save_directory(self))
 
     def _criar_tabela(self):
         self.tabela = ctk.CTkFrame(
@@ -203,17 +205,8 @@ class App(ctk.CTk):
         self.btn_gerar_relatorio.configure(command=self._run_process_thread)
 
 ##Função da Interface abaixo
-    def ask_file_to_open(self) -> Path:
-        file_path = filedialog.askopenfilename(
-            title="Selecione o arquivo",
-            filetypes=[("Excel files", "*.xlsx"), ("Excel files", "*.xls")],
-            initialdir=os.path.expanduser("~"),
-            parent=self,
-        )
-        return Path(file_path) if file_path else None
-
     def _run_sanitize_thread(self):
-        file_path = self.ask_file_to_open()
+        file_path = ask_excel_file(self)
         if file_path is None:
             return None
         try:
@@ -240,20 +233,6 @@ class App(ctk.CTk):
         """
         thread = self.process_controller
         thread.start()
-
-    def ask_file_directory_to_save(self):
-        file_directory = filedialog.askdirectory(
-            title="Selecione o diretório de exportação",
-            initialdir=os.path.expanduser("~"),
-            parent=self,
-        )
-        return file_directory
-
-    def error_message(self, message: str):
-        messagebox.showerror("Erro", message)
-
-    def success_message(self, message: str):
-        messagebox.showinfo("Sucesso", message)
 
 if __name__ == "__main__":
     app = App()
