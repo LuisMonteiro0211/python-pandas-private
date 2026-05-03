@@ -1,7 +1,3 @@
-from ast import List
-from typing import Any
-
-
 from customtkinter import CTkFrame
 from tkinter import ttk
 from src.gui.theme import COLORS
@@ -21,6 +17,8 @@ class DataTable(CTkFrame):
             width = 360,
             height = 250,
         )
+        self.pack_propagate(False)
+        self.pack(fill="both", expand=True, padx=5, pady=5)
 
     def _build(self):
         self._build_treeview()
@@ -70,14 +68,24 @@ class DataTable(CTkFrame):
     def _layout(self):
         self._horizontal_scrollbar_frame.pack(
             side="bottom",
-            fill="x",
-            pady=2
+            fill="x"
         )
 
         self._vertical_scrollbar_frame.pack(
             side="right",
+            fill="y"
+        )
+
+        self._horizontal_scrollbar.pack(
+            side="bottom",
+            fill="x",
+            padx=2
+        )
+
+        self._vertical_scrollbar.pack(
+            side="right",
             fill="y",
-            pady=5
+            padx=5
         )
 
         self._treeview.pack(
