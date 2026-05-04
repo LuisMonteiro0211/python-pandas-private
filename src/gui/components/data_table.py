@@ -18,7 +18,6 @@ class DataTable(CTkFrame):
             height = 250,
         )
         self.pack_propagate(False)
-        self.pack(fill="both", expand=True, padx=5, pady=5)
 
     def _build(self):
         self._build_treeview()
