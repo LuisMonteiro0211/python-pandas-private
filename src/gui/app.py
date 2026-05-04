@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from src.controller.sanitize_controller import SanitizeController
 from src.controller.process_controller import ProcessController
-from tkinter import ttk
+from src.gui.components import DataTable
 import pandas as pd
 from src.gui.theme import COLORS, FONTS
 from src.gui.dialogs import (
@@ -26,7 +26,7 @@ class App(ctk.CTk):
         self._criar_sidebar()
         self._criar_meio()
         self._criar_tabela()
-        self._criar_barra_de_progresso()
+        #self._criar_barra_de_progresso()
         self._criar_rodape()
         
     def _criar_sidebar(self):
@@ -79,91 +79,8 @@ class App(ctk.CTk):
         self.btn_caminho_salvar.configure(command=lambda: ask_save_directory(self))
 
     def _criar_tabela(self):
-        self.tabela = ctk.CTkFrame(
-            self.meio, 
-            width = 360, 
-            height = 250, 
-            fg_color=COLORS.table_background)
-
-        self.tabela.pack_propagate(False)
+        self.tabela = DataTable(self.meio)
         self.tabela.pack(fill=ctk.BOTH, expand=True, padx=5, pady=5)
-        self.tabela._border_color = COLORS.table_border
-        self.tabela._border_width = 1
-
-        self.horizontal_scrollbar_frame = ctk.CTkFrame(
-            self.tabela,
-            width=360,
-            height=20,
-            fg_color=COLORS.frame_transparent
-        )
-        self.horizontal_scrollbar_frame.pack(side=ctk.BOTTOM, fill=ctk.X)
-
-        self.treeview = ttk.Treeview(
-            self.tabela,
-            show="headings",
-            height=10
-        )
-
-        vertical_scrollbar = ttk.Scrollbar(
-            self.tabela,
-            orient="vertical",
-            command=self.treeview.yview
-        )
-
-        horizontal_scrollbar = ttk.Scrollbar(
-            self.horizontal_scrollbar_frame,
-            orient="horizontal",
-            command=self.treeview.xview
-        )
-
-        self.treeview.configure(
-            yscrollcommand=vertical_scrollbar.set, 
-            xscrollcommand=horizontal_scrollbar.set
-        )
-
-        self.treeview.pack(side=ctk.LEFT, 
-        fill=ctk.BOTH, 
-        expand=True, 
-        padx=2, 
-        pady=2
-        )
-
-        horizontal_scrollbar.pack(side=ctk.BOTTOM, 
-        fill=ctk.X, 
-        pady=2
-        )
-
-        vertical_scrollbar.pack(side=ctk.RIGHT, 
-        fill=ctk.Y, 
-        pady=5
-        )
-
-    def _atualizar_tabela(self, dataframe: pd.DataFrame):
-        columns = dataframe.columns.tolist()
-
-        self.treeview["columns"] = columns
-        self.treeview["show"] = "headings"
-
-        for column in columns:
-            self.treeview.heading(column, text=column)
-            self.treeview.column(column, width=140, anchor='center', stretch=False)
-
-        for index, row in dataframe.iterrows():
-            self.treeview.insert(
-                "",
-                "end",
-                values=list(row)
-            )
-
-
-    def _criar_barra_de_progresso(self):
-        self.frame_barra_de_progresso = ctk.CTkFrame(
-           self.meio,
-           width = 350,
-           height = 20,
-           fg_color=COLORS.frame_transparent)
-        self.frame_barra_de_progresso.pack_propagate(False)
-        self.frame_barra_de_progresso.pack(side=ctk.TOP, fill=ctk.X, padx=5, pady=8)
 
     def _criar_rodape(self):
         self.rodape = ctk.CTkFrame(
@@ -225,7 +142,7 @@ class App(ctk.CTk):
         dataframe = self._run_sanitize_thread()
         if dataframe is None:
             return
-        self._atualizar_tabela(dataframe)
+        self.tabela.update_data(dataframe)
 
     def _run_process_thread(self):
         """
