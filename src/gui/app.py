@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from src.controller.sanitize_controller import SanitizeController
 from src.controller.process_controller import ProcessController
-from src.gui.components import DataTable
+from src.gui.components import DataTable, Sidebar
 import pandas as pd
 from src.gui.theme import COLORS, FONTS
 from src.gui.dialogs import (
@@ -30,11 +30,8 @@ class App(ctk.CTk):
         self._criar_rodape()
         
     def _criar_sidebar(self):
-        self.sidebar = ctk.CTkFrame(self, width=100, fg_color=COLORS.sidebar_background)
+        self.sidebar = Sidebar(self)
         self.sidebar.pack(side=ctk.LEFT, fill=ctk.Y)
-        self.sidebar._border_color = COLORS.sidebar_border
-        self.sidebar._border_width = 1
-        self.sidebar.pack_propagate(False)
 
     def _criar_meio(self):
         self.meio = ctk.CTkFrame(
@@ -80,7 +77,7 @@ class App(ctk.CTk):
 
     def _criar_tabela(self):
         self.tabela = DataTable(self.meio)
-        self.tabela.pack(fill=ctk.BOTH, expand=True, padx=5, pady=5)
+        self.tabela.pack(padx=5, pady=5)
 
     def _criar_rodape(self):
         self.rodape = ctk.CTkFrame(
