@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from src.controller.sanitize_controller import SanitizeController
 from src.controller.process_controller import ProcessController
-from src.gui.components import DataTable, Sidebar
+from src.gui.components import DataTable, Sidebar, ProgressBar
 import pandas as pd
 from src.gui.theme import COLORS, FONTS
 from src.gui.dialogs import (
@@ -26,7 +26,7 @@ class App(ctk.CTk):
         self._criar_sidebar()
         self._criar_meio()
         self._criar_tabela()
-        #self._criar_barra_de_progresso()
+        self._criar_barra_de_progresso()
         self._criar_rodape()
         
     def _criar_sidebar(self):
@@ -78,6 +78,10 @@ class App(ctk.CTk):
     def _criar_tabela(self):
         self.tabela = DataTable(self.meio)
         self.tabela.pack(padx=5, pady=5)
+
+    def _criar_barra_de_progresso(self):
+        self.barra_de_progresso = ProgressBar(self.meio)
+        self.barra_de_progresso.pack(padx=5, pady=5)
 
     def _criar_rodape(self):
         self.rodape = ctk.CTkFrame(
