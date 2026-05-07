@@ -1,9 +1,35 @@
+"""
+Componente DataTable.
+
+Tabela rolável que exibe DataFrames pandas, com scrollbars vertical
+e horizontal. Internamente usa ttk.Treeview.
+
+Uso:
+    from src.gui.components import DataTable
+
+    self.tabela = DataTable(parent)
+    self.tabela.pack(fill="both", expand=True)
+
+    # Atualizar com dados:
+    self.tabela.update_data(meu_dataframe)
+
+    # Limpar:
+    self.tabela.clear()
+"""
+
 from customtkinter import CTkFrame
 from tkinter import ttk
 from src.gui.theme import COLORS
 import pandas as pd
 
+
 class DataTable(CTkFrame):
+    """Tabela rolável que exibe um DataFrame pandas.
+
+    Internamente usa ttk.Treeview com 2 scrollbars (vertical e
+    horizontal). Configurações visuais (cor, dimensão, borda) vêm
+    do tema centralizado.
+    """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -94,12 +120,23 @@ class DataTable(CTkFrame):
             padx=2,
             pady=2
         )
-    
-    def update_data(self, dataframe: pd.DataFrame):
+
+    def update_data(self, dataframe: pd.DataFrame) -> None:
+        """Substitui os dados exibidos pelos de um novo DataFrame.
+
+        As colunas são reconfiguradas a cada chamada (heading e
+        largura padrão de 140px). Linhas anteriores são limpas
+        antes da inserção.
+
+        Args:
+            dataframe: DataFrame a ser exibido. Se for None, a
+                tabela é limpa.
+        """
         self._dataframe = dataframe
         self._render()
-    
-    def clear(self):
+
+    def clear(self) -> None:
+        """Limpa todas as linhas e descarta o DataFrame atual."""
         self._dataframe = None
         self._clear_rows()
 
@@ -118,7 +155,7 @@ class DataTable(CTkFrame):
     def _insert_rows(self):
         for row in self._dataframe.itertuples(index=False):
             self._treeview.insert("", "end", values=list(row))
-    
+
     def _render(self):
         self._clear_rows()
 
@@ -127,4 +164,3 @@ class DataTable(CTkFrame):
 
         self._configure_columns()
         self._insert_rows()
-
