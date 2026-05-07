@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from src.controller.sanitize_controller import SanitizeController
 from src.controller.process_controller import ProcessController
-from src.gui.components import DataTable, Sidebar, ProgressBar
+from src.gui.components import DataTable, Sidebar, ProgressBar, Baseboard
 import pandas as pd
 from src.gui.theme import COLORS, FONTS
 from src.gui.dialogs import (
@@ -84,43 +84,9 @@ class App(ctk.CTk):
         self.barra_de_progresso.pack(padx=5, pady=5)
 
     def _criar_rodape(self):
-        self.rodape = ctk.CTkFrame(
-            self.meio, height=50, 
-            width=500 ,fg_color=COLORS.footer_background, 
-            corner_radius=0)
-        self.rodape.pack(side=ctk.BOTTOM, fill=ctk.X)
-        self.rodape.pack_propagate(False)
-
-        self.frame_botoes_rodape = ctk.CTkFrame(self.rodape, fg_color=COLORS.frame_transparent)
-        self.frame_botoes_rodape.propagate(False)
-        self.frame_botoes_rodape.pack(fill=ctk.X, padx=10, pady=8)
-        
-
-        self.btn_gerar_relatorio = ctk.CTkButton(
-            self.frame_botoes_rodape, 
-            text="Gerar", 
-            fg_color=COLORS.button_background, 
-            hover_color=COLORS.button_hover, 
-            text_color=COLORS.button_text, 
-            border_width=1, 
-            border_color=COLORS.button_border,
-            font=ctk.CTkFont(family=FONTS.button_family, size=FONTS.button_size, weight=FONTS.button_weight)
-            )
-
-        self.btn_cancelar = ctk.CTkButton(
-            self.frame_botoes_rodape, 
-            text="Cancelar", 
-            fg_color=COLORS.button_background, 
-            hover_color=COLORS.button_hover, 
-            text_color=COLORS.button_text, 
-            border_width=1,
-            border_color=COLORS.button_border,
-            font=ctk.CTkFont(family=FONTS.button_family, size=FONTS.button_size, weight=FONTS.button_weight))
-
-        self.btn_gerar_relatorio.pack(side=ctk.RIGHT, padx=(0, 10))
-        self.btn_cancelar.pack(side=ctk.LEFT, padx=(10, 0))
-
-        self.btn_gerar_relatorio.configure(command=self._run_process_thread)
+        self.baseboard = Baseboard(self.meio, on_process=self._run_process_thread, on_cancel=self._handle_cancel)
+        self.baseboard.pack(side=ctk.BOTTOM, fill=ctk.X)
+        self.baseboard.pack_propagate(False)
 
 ##Função da Interface abaixo
     def _run_sanitize_thread(self):
@@ -151,6 +117,9 @@ class App(ctk.CTk):
         """
         thread = self.process_controller
         thread.start()
+
+    def _handle_cancel(self):
+        pass
 
 if __name__ == "__main__":
     app = App()
