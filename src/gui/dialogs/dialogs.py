@@ -83,3 +83,13 @@ def confirm(message: str, title: str = "Confirmar") -> bool:
         True se o usuário confirmar, False caso contrário.
     """
     return messagebox.askyesno(title, message)
+
+def show_warning(message: str, title: str = "Aviso") -> None:
+    """
+    Mostra uma mensagem de aviso.
+
+    Args:
+        message: Mensagem de aviso.
+        title: Título da mensagem.
+    """
+    messagebox.showwarning(title, message)
