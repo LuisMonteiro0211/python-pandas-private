@@ -20,12 +20,7 @@ class AppController():
         self.diretorio_export = None
         self.canceled = None
         self.cancel_event = Event()
-
-        self.process_context = ProcessContext(
-            safe_dataframe=self.safe_dataframe,
-            diretorio_export=self.diretorio_export,
-            cancel_event=self.cancel_event,
-        )
+        self.process_context = None 
 
     def on_process(self):
         if self.safe_dataframe is None:
@@ -36,6 +31,17 @@ class AppController():
             show_warning("Selecione um diretório para exportar")
             return
 
+        if self.process_context is not None:
+            self.process_context.reset_for_new_run()
+
+        self.process_context = ProcessContext(
+            safe_dataframe=self.safe_dataframe,
+            diretorio_export=self.diretorio_export,
+            cancel_event=self.cancel_event,
+            canceled=self.canceled,
+            error=None
+        )
+
         self.process_thread = ProcessController(self.process_context) #Cria o objeto de thread
         self.process_thread.start() #Inicia a thread
 
@@ -44,13 +50,15 @@ class AppController():
     def poll_process(self):
         if self.process_thread.is_alive():
             self.view.after(100, self.poll_process)
+            return
 
-        if self.process_thread.canceled:
+        if self.process_context.canceled:
             show_warning("Processo cancelado")
+            return
 
-        if self.process_thread.error is not None:
-            show_error(str(self.process_thread.error))
-
+        if self.process_context.error is not None:
+            show_error(str(self.process_context.error))
+            return
         else:
             show_success("Processo concluído com sucesso")
 
@@ -85,6 +93,6 @@ class AppController():
 
         self.diretorio_export = save_directory
 
-
     def on_cancel(self):
-        pass
+        if self.cancel_event is not None:
+            self.cancel_event.set()
