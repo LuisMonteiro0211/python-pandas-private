@@ -7,7 +7,6 @@ from src.helpers.helper import (
     get_unique_values,
     safe_name,
 )
-from src.exceptions import ProcessCancelled
 from src.models.processcontext import ProcessContext
 from src.models.export import Export
 from src.models.filtro import Filtro
@@ -32,7 +31,8 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
         df_filtered_to_setor = applying_filters(filtered_to_setor) #Cria um novo DataFrame com os dados filtrados para o setor selecionado
 
         if process_context.cancel_event.is_set():
-            raise ProcessCancelled()
+            process_context.canceled = True
+            return
 
         turnos = get_unique_values(df_filtered_to_setor, REQUIRED_COLUMNS[1]) #Filtra os turnos para o setor selecionado
         logger.info("Turnos para setor '%s': %s", setor, turnos)
@@ -42,7 +42,8 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
             df_filtered_to_turno = applying_filters(filtered_to_turno) #Cria um novo DataFrame com os dados filtrados para o turno selecionado
             
             if process_context.cancel_event.is_set():
-                raise ProcessCancelled()
+                process_context.canceled = True
+                return
 
             nome_arquivo = safe_name(f"Relatorio_{setor}_{turno}_{data_hoje}.xlsx")
 
