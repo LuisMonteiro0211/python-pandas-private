@@ -10,7 +10,6 @@ from src.helpers.helper import (
 from src.models.processcontext import ProcessContext
 from src.models.export import Export
 from src.models.filtro import Filtro
-import pandas as pd
 
 def process_spreadsheet(process_context: ProcessContext) -> None:
     """
@@ -54,6 +53,14 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
                     nome_arquivo=nome_arquivo,
                 )
             )
+
+            process_context.completed_jobs += 1
+            if process_context.on_progress is not None:
+                process_context.on_progress(
+                    process_context.completed_jobs,
+                    process_context.total_jobs,
+                )
+
             logger.info(
                 "Exportado: Setor=%s, Turno=%s, Registros=%d",
                 setor,
