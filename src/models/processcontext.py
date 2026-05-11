@@ -10,6 +10,7 @@ class ProcessContext:
     cancel_event: Event
     canceled: bool = False
     error: Exception | None = None
+    estimated_jobs: int = 0
 
     def reset_for_new_run(self) -> None:
         """Estado limpo antes de cada execução em thread (cancelamento/erro/evento)."""
@@ -18,3 +19,4 @@ class ProcessContext:
         self.canceled = False
         self.error = None
         self.cancel_event.clear()
+        self.estimated_jobs = 0
