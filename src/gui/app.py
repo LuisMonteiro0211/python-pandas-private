@@ -1,8 +1,7 @@
 import customtkinter as ctk
-
 from src.gui.app_controller import AppController
 from src.gui.components import DataTable, Sidebar, ProgressBar, Baseboard, Header
-from src.gui.theme import COLORS, FONTS
+from src.gui.theme import COLORS
 
 
 class App(ctk.CTk):
