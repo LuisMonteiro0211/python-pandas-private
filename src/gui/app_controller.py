@@ -18,7 +18,6 @@ class AppController():
         self.view = view
         self.safe_dataframe = None
         self.diretorio_export = None
-        self.canceled = None
         self.cancel_event = Event()
         self.process_context = None
         self.sanitize_context = False
@@ -44,12 +43,17 @@ class AppController():
             safe_dataframe=self.safe_dataframe,
             diretorio_export=self.diretorio_export,
             cancel_event=self.cancel_event,
-            canceled=self.canceled,
-            error=None
+            total_jobs=self.estimated_jobs,
+            completed_jobs=0,
+            error=None,
+            on_progress=self._on_export_progress,
         )
 
-        self.process_thread = ProcessController(self.process_context) #Cria o objeto de thread
-        self.process_thread.start() #Inicia a thread
+        self.view.barra_de_progresso.reset_progress()
+        self.view.barra_de_progresso.update_progress(0, self.estimated_jobs)
+
+        self.process_thread = ProcessController(self.process_context)
+        self.process_thread.start()
 
         self.view.baseboard.set_processing_locked("disabled")
 
@@ -62,14 +66,27 @@ class AppController():
 
         if self.process_context.canceled:
             show_warning("Processo cancelado")
+            self.view.baseboard.set_processing_locked("normal")
             return
 
         if self.process_context.error is not None:
             show_error(str(self.process_context.error))
+            self.view.baseboard.set_processing_locked("normal")
             return
-        else:
-            show_success("Processo concluído com sucesso")
-            self.view.baseboard.set_processing_locked('normal')
+
+        show_success("Processo concluído com sucesso")
+        self.view.baseboard.set_processing_locked("normal")
+        self.view.barra_de_progresso.update_progress(
+            self.process_context.completed_jobs,
+            self.process_context.total_jobs,
+        )
+
+    def _on_export_progress(self, completed: int, total: int) -> None:
+        """Chamado na worker; agenda atualização da barra na thread da GUI."""
+        self.view.after(
+            0,
+            lambda c=completed, t=total: self.view.barra_de_progresso.update_progress(c, t),
+        )
 
     def on_load_file(self):  
         file_path = ask_excel_file(self.view)
