@@ -10,7 +10,7 @@ Uso:
 
 """
 
-from typing import Callable
+from typing import Callable, Literal
 
 from customtkinter import CTkFrame, CTkButton
 from src.gui.theme import COLORS, FONTS
@@ -84,3 +84,6 @@ class Baseboard(CTkFrame):
         self._frame_buttons.pack_propagate(False)
         self._process_button.pack(side=ctk.RIGHT, padx=(0, 10))
         self._cancel_button.pack(side=ctk.LEFT, padx=(10, 0))
+
+    def set_processing_locked(self, state: Literal["normal", "disabled"]):
+        self._process_button.configure(state=state)
