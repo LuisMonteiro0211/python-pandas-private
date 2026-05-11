@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
+from pandas.api.types import is_string_dtype
 
 from src.models.export import Export
 from src.models.filtro import Filtro
@@ -177,7 +178,7 @@ def strip_space_in_column(list_column: List[str], dataframe: pd.DataFrame) -> pd
     """
 
     for column in list_column:
-        if dataframe[column].dtype != 'object':
+        if not is_string_dtype(dataframe[column]):
             raise TypeError(f"Coluna {column} não é um texto")
 
         safe_column = dataframe[column].str.strip()
