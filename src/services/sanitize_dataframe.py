@@ -13,6 +13,7 @@ from src.helpers.helper import (
 )
 import pandas as pd
 from src.constants import REQUIRED_COLUMNS
+import logging
 
 def sanitize_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
@@ -37,10 +38,12 @@ def sanitize_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
         TypeError: Se alguma coluna obrigatória não for do tipo texto (necessário
             para a remoção de espaços em branco).
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Sanitizando DataFrame")
     dataframe_is_empty(dataframe) # Verifica se o DataFrame está vazio
     dataframe.columns = safe_name_to_column(dataframe.columns.tolist()) # Sanitiza os nomes das colunas
     check_colunas(dataframe.columns.tolist(), REQUIRED_COLUMNS) # Verifica se as colunas existem no DataFrame
     dataframe = strip_space_in_column(REQUIRED_COLUMNS, dataframe) # Remove espaços em branco das colunas
     is_nan_in_column(REQUIRED_COLUMNS, dataframe) # Verifica se as colunas contêm valores NaN
-        
+    logger.info(f"DataFrame sanitizado")
     return dataframe

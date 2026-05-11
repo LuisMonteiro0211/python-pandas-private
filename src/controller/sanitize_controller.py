@@ -2,12 +2,15 @@
 
 from pathlib import Path
 import threading
+import logging
 
 import pandas as pd
 
 from src.services.sanitize_dataframe import sanitize_dataframe
 from src.helpers.helper import get_dataframe
 from src.services.estimate_export_jobs import estimate_export_job_count
+
+logger = logging.getLogger(__name__)
 
 
 class SanitizeController(threading.Thread):
@@ -64,9 +67,11 @@ class SanitizeController(threading.Thread):
 
         except ValueError as e:
             self.error = ValueError(f"Erro ao ler o arquivo {self.file_path}: {e}")
+            logger.error(f"Erro ao ler o arquivo {self.file_path}: {e}")
             return
         except FileNotFoundError as e:
             self.error = FileNotFoundError(f"Arquivo {self.file_path} não encontrado {e}")
+            logger.error(f"Arquivo {self.file_path} não encontrado: {e}")
             return
 
         try:
@@ -75,4 +80,5 @@ class SanitizeController(threading.Thread):
             self.result = dataframe
         except (ValueError, TypeError) as e:
             self.error = ValueError(f"Erro ao sanitizar o DataFrame: {e}")
+            logger.error(f"Erro ao sanitizar o DataFrame: {e}")
             return

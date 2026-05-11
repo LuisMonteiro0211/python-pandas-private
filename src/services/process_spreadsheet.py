@@ -5,7 +5,7 @@ diretório de saída, evento de cancelamento, callbacks de progresso). Roda
 tipicamente dentro de :class:`~src.controller.process_controller.ProcessController`.
 """
 
-import logging as lg
+import logging
 from datetime import datetime
 from src.constants import REQUIRED_COLUMNS
 from src.helpers.helper import (
@@ -18,6 +18,8 @@ from src.models.processcontext import ProcessContext
 from src.models.export import Export
 from src.models.filtro import Filtro
 
+
+
 def process_spreadsheet(process_context: ProcessContext) -> None:
     """
     Processa a planilha aplicando filtros por setor e turno,
@@ -27,7 +29,7 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
         process_context: Estado compartilhado (dados, pastas, cancelamento,
             ``on_progress`` para atualizar a GUI de forma indireta).
     """
-    logger = lg.getLogger(__name__)
+    logger = logging.getLogger(__name__)
     data_hoje = datetime.now().strftime("%d_%m_%Y")
 
     setores = get_unique_values(process_context.safe_dataframe, REQUIRED_COLUMNS[0])
@@ -37,6 +39,8 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
         filtered_to_setor = Filtro(coluna=REQUIRED_COLUMNS[0], dataframe=process_context.safe_dataframe, valor=setor) #Monta o filtro para o setor selecionado
         df_filtered_to_setor = applying_filters(filtered_to_setor) #Cria um novo DataFrame com os dados filtrados para o setor selecionado
 
+        logger.info(f"DataFrame filtrado para setor {setor}: {df_filtered_to_setor.shape[0]} registros")
+        
         if process_context.cancel_event.is_set():
             process_context.canceled = True
             return
@@ -47,7 +51,8 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
         for turno in turnos:
             filtered_to_turno = Filtro(coluna=REQUIRED_COLUMNS[1], dataframe=df_filtered_to_setor, valor=turno)
             df_filtered_to_turno = applying_filters(filtered_to_turno) #Cria um novo DataFrame com os dados filtrados para o turno selecionado
-            
+            logger.info(f"DataFrame filtrado para turno {turno}: {df_filtered_to_turno.shape[0]} registros")
+
             if process_context.cancel_event.is_set():
                 process_context.canceled = True
                 return
@@ -61,6 +66,12 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
                     nome_arquivo=nome_arquivo,
                 )
             )
+            logger.info(
+                "Exportado: Setor=%s, Turno=%s, Registros=%d",
+                setor,
+                turno,
+                df_filtered_to_turno.shape[0],
+            )
 
             process_context.completed_jobs += 1
             if process_context.on_progress is not None:
@@ -68,10 +79,3 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
                     process_context.completed_jobs,
                     process_context.total_jobs,
                 )
-
-            logger.info(
-                "Exportado: Setor=%s, Turno=%s, Registros=%d",
-                setor,
-                turno,
-                df_filtered_to_turno.shape[0],
-            )

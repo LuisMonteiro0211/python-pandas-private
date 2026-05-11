@@ -3,6 +3,9 @@
 from src.models.processcontext import ProcessContext
 from src.services.process_spreadsheet import process_spreadsheet
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ProcessController(threading.Thread):
@@ -35,6 +38,8 @@ class ProcessController(threading.Thread):
         """
         try:
             process_spreadsheet(self.process_context)
+            logger.info("Processamento concluído")
         except Exception as e:
             self.process_context.error = e
+            logger.exception("Erro ao processar a planilha")
             return

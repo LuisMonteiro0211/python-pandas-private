@@ -9,6 +9,7 @@ from src.controller.process_controller import ProcessController
 from src.controller.sanitize_controller import SanitizeController
 from threading import Event
 from src.models.processcontext import ProcessContext
+import logging
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.gui.app import App
@@ -19,6 +20,9 @@ from src.gui.dialogs import (
     show_success,
     show_warning,
 )
+
+logger = logging.getLogger(__name__)
+
 
 class AppController():
     def __init__(self, view: App):
@@ -33,18 +37,22 @@ class AppController():
     def on_process(self):
         if self.safe_dataframe is None:
             show_warning("Carregue um arquivo para processar")
+            logger.warning("Carregue um arquivo para processar")
             return
         
         if self.diretorio_export is None:
             show_warning("Selecione um diretório para exportar")
+            logger.warning("Selecione um diretório para exportar")
             return
 
         if not self.sanitize_context:
             show_warning("Arquivo não sanitizado")
+            logger.warning("Arquivo não sanitizado")
             return
 
         if self.process_context is not None:
             self.process_context.reset_for_new_run()
+            logger.info("Processo resetado")
 
         self.process_context = ProcessContext(
             safe_dataframe=self.safe_dataframe,
@@ -60,11 +68,13 @@ class AppController():
         self.view.barra_de_progresso.update_progress(0, self.estimated_jobs)
 
         self.process_thread = ProcessController(self.process_context)
+        logger.info("Processo iniciado")
         self.process_thread.start()
 
         self.view.baseboard.set_processing_locked("disabled")
 
         self.poll_process()
+        logger.info("Processo ativo")
 
     def poll_process(self):
         if self.process_thread.is_alive():
@@ -74,11 +84,13 @@ class AppController():
         if self.process_context.canceled:
             show_warning("Processo cancelado")
             self.view.baseboard.set_processing_locked("normal")
+            logger.warning("Processo cancelado")
             return
 
         if self.process_context.error is not None:
             show_error(str(self.process_context.error))
             self.view.baseboard.set_processing_locked("normal")
+            logger.error("Erro ao processar a planilha: %s", self.process_context.error)
             return
 
         show_success("Processo concluído com sucesso")
@@ -87,6 +99,7 @@ class AppController():
             self.process_context.completed_jobs,
             self.process_context.total_jobs,
         )
+        logger.info("Processo concluído com sucesso")
 
     def _on_export_progress(self, completed: int, total: int) -> None:
         """Chamado na worker; agenda atualização da barra na thread da GUI."""
@@ -99,18 +112,22 @@ class AppController():
         file_path = ask_excel_file(self.view)
 
         if file_path is None:
+            logger.warning("Arquivo não selecionado")
             return
 
         sanitize = SanitizeController(file_path=file_path)
+        logger.info("Sanitização iniciada")
         sanitize.start()
         sanitize.join()
-
+        logger.info("Sanitização concluída")
+        
         if sanitize.error is not None:
-            show_error(str(sanitize.error)) 
+            show_error(str(sanitize.error))
+            logger.error("Erro ao sanitizar a planilha: %s", sanitize.error)
 
             if sanitize.dataframe is not None:
                 self.view.tabela.update_data(sanitize.dataframe)
-
+                logger.info("Exibição do DF 'errado' realizada")
         else:
             show_success("Planilha carregada com sucesso!")
             self.view.tabela.update_data(sanitize.result)

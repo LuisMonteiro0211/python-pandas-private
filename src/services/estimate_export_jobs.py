@@ -4,12 +4,15 @@
 """
 
 from src.models.filtro import Filtro
+import logging
 import pandas as pd
 from src.constants import REQUIRED_COLUMNS
 from src.helpers.helper import (
     get_unique_values,
     applying_filters,
 )
+
+logger = logging.getLogger(__name__)
 
 def estimate_export_job_count(safe_dataframe: pd.DataFrame) -> int:
     """
@@ -37,5 +40,5 @@ def estimate_export_job_count(safe_dataframe: pd.DataFrame) -> int:
         turnos = get_unique_values(dataframe_to_setor, REQUIRED_COLUMNS[1])
 
         estimated_jobs += len(turnos)
-
+    logger.info(f"Estimativa de jobs: {estimated_jobs}")
     return estimated_jobs
