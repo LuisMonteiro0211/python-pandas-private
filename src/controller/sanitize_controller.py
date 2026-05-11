@@ -3,7 +3,7 @@ from src.helpers.helper import get_dataframe
 import pandas as pd
 import threading
 from pathlib import Path
-
+from src.services.estimate_export_jobs import estimate_export_job_count
 class SanitizeController(threading.Thread):
     """
     Controller (Thread) para carregar e sanitizar um DataFrame em background,
@@ -37,6 +37,7 @@ class SanitizeController(threading.Thread):
         self.dataframe = None
         self.result = None
         self.error = None
+        self.estimated_jobs = 0
 
     def run(self) -> None:
 
@@ -53,6 +54,7 @@ class SanitizeController(threading.Thread):
 
         try:
             dataframe: pd.DataFrame = sanitize_dataframe(dataframe)
+            self.estimated_jobs = estimate_export_job_count(dataframe)
             self.result = dataframe
         except (ValueError, TypeError) as e:
             self.error = ValueError(f"Erro ao sanitizar o DataFrame: {e}")

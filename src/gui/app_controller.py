@@ -22,6 +22,7 @@ class AppController():
         self.cancel_event = Event()
         self.process_context = None
         self.sanitize_context = False
+        self.estimated_jobs = 0
 
     def on_process(self):
         if self.safe_dataframe is None:
@@ -90,6 +91,7 @@ class AppController():
             show_success("Planilha carregada com sucesso!")
             self.view.tabela.update_data(sanitize.result)
             self.safe_dataframe = sanitize.result
+            self.estimated_jobs = sanitize.estimated_jobs
             self.sanitize_context = True
         
     def on_export(self):
