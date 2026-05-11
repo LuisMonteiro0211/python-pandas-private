@@ -1,3 +1,5 @@
+"""Modelo de filtro fatiado (coluna + valor) aplicado a um DataFrame."""
+
 from dataclasses import dataclass
 
 import pandas as pd

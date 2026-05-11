@@ -6,7 +6,7 @@ importar daqui em vez de usar valores hardcoded — assim, mudar o tema
 exige editar apenas este arquivo.
 
 Uso:
-    from src.gui.theme.theme import COLORS, FONTS, SETTINGS
+    from src.gui.theme import COLORS, FONTS, SETTINGS
 
     ctk.CTkButton(
         parent,

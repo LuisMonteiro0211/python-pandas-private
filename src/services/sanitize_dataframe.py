@@ -1,3 +1,9 @@
+"""Orquestra a sanitização de um DataFrame já carregado (regras de negócio puras).
+
+Não executa I/O de arquivo; recebe :class:`pandas.DataFrame` e retorna uma cópia
+tratada ou levanta exceções de validação. Erros são tratados nos controllers.
+"""
+
 from src.helpers.helper import (
     safe_name_to_column,
     is_nan_in_column,

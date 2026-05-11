@@ -1,3 +1,10 @@
+"""Exportação de relatórios Excel por combinação setor × turno.
+
+Lê :class:`~src.models.processcontext.ProcessContext` (DataFrame sanitizado,
+diretório de saída, evento de cancelamento, callbacks de progresso). Roda
+tipicamente dentro de :class:`~src.controller.process_controller.ProcessController`.
+"""
+
 import logging as lg
 from datetime import datetime
 from src.constants import REQUIRED_COLUMNS
@@ -17,7 +24,8 @@ def process_spreadsheet(process_context: ProcessContext) -> None:
     exportando um arquivo Excel por combinação.
 
     Args:
-        path: Caminho da planilha de entrada.
+        process_context: Estado compartilhado (dados, pastas, cancelamento,
+            ``on_progress`` para atualizar a GUI de forma indireta).
     """
     logger = lg.getLogger(__name__)
     data_hoje = datetime.now().strftime("%d_%m_%Y")

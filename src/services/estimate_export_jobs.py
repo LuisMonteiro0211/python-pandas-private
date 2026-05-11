@@ -1,3 +1,8 @@
+"""Estimativa do número de arquivos gerados na exportação (mesma lógica de setor/turno).
+
+Útil para dimensionar a barra de progresso antes de iniciar o processamento.
+"""
+
 from src.models.filtro import Filtro
 import pandas as pd
 from src.constants import REQUIRED_COLUMNS
@@ -11,10 +16,10 @@ def estimate_export_job_count(safe_dataframe: pd.DataFrame) -> int:
     Estima o número de arquivos que serão gerados para exportação.
 
     Args:
-        process_context: Contexto do processo de exportação.
+        safe_dataframe: DataFrame já sanitizado (com colunas obrigatórias).
 
     Returns:
-        Número de arquivos que serão gerados para exportação.
+        Quantidade de combinações únicas setor × turno com pelo menos um turno.
     """
 
     estimated_jobs: int = 0

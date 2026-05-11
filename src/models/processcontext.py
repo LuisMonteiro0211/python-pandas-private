@@ -1,3 +1,9 @@
+"""Contexto mutável do processamento em thread (dados, cancelamento, progresso, erros).
+
+Passado ao serviço :func:`~src.services.process_spreadsheet.process_spreadsheet`
+e preenchido/atualizado pela worker; a GUI lê resultados após ``join`` ou via callbacks.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 from threading import Event

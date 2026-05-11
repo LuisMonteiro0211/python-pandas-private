@@ -1,3 +1,5 @@
+"""Modelo de parâmetros para exportar um único arquivo Excel."""
+
 from dataclasses import dataclass
 from pathlib import Path
 

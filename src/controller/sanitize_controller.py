@@ -1,9 +1,15 @@
+"""Controller para sanitização de dados em thread separada."""
+
+from pathlib import Path
+import threading
+
+import pandas as pd
+
 from src.services.sanitize_dataframe import sanitize_dataframe
 from src.helpers.helper import get_dataframe
-import pandas as pd
-import threading
-from pathlib import Path
 from src.services.estimate_export_jobs import estimate_export_job_count
+
+
 class SanitizeController(threading.Thread):
     """
     Controller (Thread) para carregar e sanitizar um DataFrame em background,
@@ -32,6 +38,11 @@ class SanitizeController(threading.Thread):
         ...     mostrar_erro(controller.error)
     """
     def __init__(self, file_path: Path):
+        """Inicializa o controller com o caminho do arquivo.
+        
+        Args:
+            file_path: Caminho completo do arquivo Excel a ser processado.
+        """
         super().__init__()
         self.file_path = file_path
         self.dataframe = None
@@ -40,6 +51,12 @@ class SanitizeController(threading.Thread):
         self.estimated_jobs = 0
 
     def run(self) -> None:
+        """Executa a sanitização em thread separada.
+        
+        Carrega o DataFrame do arquivo, aplica sanitização e estima
+        a quantidade de jobs de exportação. Qualquer erro é capturado
+        e armazenado em self.error.
+        """
 
         try:
             dataframe: pd.DataFrame = get_dataframe(self.file_path)

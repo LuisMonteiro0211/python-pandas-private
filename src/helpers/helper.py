@@ -1,3 +1,8 @@
+"""Funções auxiliares para leitura de Excel, validação de colunas, filtros e export.
+
+Usado pelos serviços em :mod:`src.services`; não importa interface gráfica.
+"""
+
 import re
 from os import getenv
 from pathlib import Path

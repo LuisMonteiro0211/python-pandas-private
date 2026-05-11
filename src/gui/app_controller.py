@@ -1,3 +1,10 @@
+"""Orquestra ações da interface: carregar, exportar, processar e cancelar.
+
+Conecta a :class:`~src.gui.app.App` aos controllers em thread, agenda
+atualizações da barra de progresso na thread principal do Tk via ``after``,
+e mantém estado (DataFrame seguro, pasta de destino, estimativa de jobs).
+"""
+
 from src.controller.process_controller import ProcessController
 from src.controller.sanitize_controller import SanitizeController
 from threading import Event

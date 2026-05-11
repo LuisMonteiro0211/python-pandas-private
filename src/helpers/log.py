@@ -1,3 +1,5 @@
+"""Configuração centralizada de logging (arquivo + console)."""
+
 import logging as lg
 from pathlib import Path
 

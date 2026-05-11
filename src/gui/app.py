@@ -1,10 +1,34 @@
+"""Módulo da janela principal da aplicação."""
+
 import customtkinter as ctk
+
 from src.gui.app_controller import AppController
 from src.gui.components import DataTable, Sidebar, ProgressBar, Baseboard, Header
 from src.gui.theme import COLORS
 
 
 class App(ctk.CTk):
+    """Janela principal da aplicação Python Pandas Analyzer.
+    
+    Monta todos os componentes visuais (sidebar, header, tabela, barra de
+    progresso e rodapé) e delega a lógica de controle para AppController.
+    
+    A janela é fixa em 500x400px e não pode ser redimensionada.
+    
+    Attributes:
+        controller: Instância de AppController que gerencia a lógica.
+        sidebar: Barra lateral visual.
+        meio: Container central que contém header, tabela e progresso.
+        header: Cabeçalho com botões de ação.
+        tabela: Tabela de visualização de dados.
+        barra_de_progresso: Barra de progresso do processamento.
+        baseboard: Rodapé com botões de processamento.
+    
+    Example:
+        >>> app = App()
+        >>> app.mainloop()
+    """
+    
     def __init__(self):
         super().__init__()
         self._configurar_tela()
