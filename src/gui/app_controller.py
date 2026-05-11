@@ -20,7 +20,8 @@ class AppController():
         self.diretorio_export = None
         self.canceled = None
         self.cancel_event = Event()
-        self.process_context = None 
+        self.process_context = None
+        self.sanitize_context = False
 
     def on_process(self):
         if self.safe_dataframe is None:
@@ -29,6 +30,10 @@ class AppController():
         
         if self.diretorio_export is None:
             show_warning("Selecione um diretório para exportar")
+            return
+
+        if not self.sanitize_context:
+            show_warning("Arquivo não sanitizado")
             return
 
         if self.process_context is not None:
@@ -44,6 +49,8 @@ class AppController():
 
         self.process_thread = ProcessController(self.process_context) #Cria o objeto de thread
         self.process_thread.start() #Inicia a thread
+
+        self.view.baseboard.set_processing_locked("disabled")
 
         self.poll_process()
 
@@ -61,6 +68,7 @@ class AppController():
             return
         else:
             show_success("Processo concluído com sucesso")
+            self.view.baseboard.set_processing_locked('normal')
 
     def on_load_file(self):  
         file_path = ask_excel_file(self.view)
@@ -73,7 +81,7 @@ class AppController():
         sanitize.join()
 
         if sanitize.error is not None:
-            show_error(str(sanitize.error))
+            show_error(str(sanitize.error)) 
 
             if sanitize.dataframe is not None:
                 self.view.tabela.update_data(sanitize.dataframe)
@@ -82,7 +90,7 @@ class AppController():
             show_success("Planilha carregada com sucesso!")
             self.view.tabela.update_data(sanitize.result)
             self.safe_dataframe = sanitize.result
-
+            self.sanitize_context = True
         
     def on_export(self):
         save_directory = ask_save_directory(self.view)
