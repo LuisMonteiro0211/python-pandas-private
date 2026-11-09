@@ -5,6 +5,8 @@ atualizações da barra de progresso na thread principal do Tk via ``after``,
 e mantém estado (DataFrame seguro, pasta de destino, estimativa de jobs).
 """
 
+from __future__ import annotations
+
 from src.controller.process_controller import ProcessController
 from src.controller.sanitize_controller import SanitizeController
 from threading import Event
